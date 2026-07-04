@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nour Says</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  overflow: hidden;
+}
+
+.container {
+  margin-top: 80px;
+}
+
+img {
+  width: 180px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {transform: translateY(0);}
+  50% {transform: translateY(-15px);}
+  100% {transform: translateY(0);}
+}
+
+h1 {
+  font-size: 40px;
+  margin: 20px 0;
+}
+
+button {
+  padding: 15px 40px;
+  font-size: 18px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.1);
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+  0% {transform: translateY(-100px);}
+  100% {transform: translateY(800px);}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <img src="logo.png">
+  <h1>Nour Says</h1>
+  <button onclick="start()">Start Experience</button>
+</div>
+
+<script>
+function start() {
+
+  let en = new SpeechSynthesisUtterance("Welcome to the graduation discussion. This is Nour.");
+  en.lang = "en-US";
+
+  let ar = new SpeechSynthesisUtterance("أهلاً بكم في مناقشة مشروع التخرج. أنا نور");
+  ar.lang = "ar-EG";
+
+  speechSynthesis.speak(en);
+  setTimeout(() => speechSynthesis.speak(ar), 4000);
+
+  for (let i = 0; i < 50; i++) {
+    let c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * window.innerWidth + "px";
+    c.style.background = `hsl(${Math.random()*360},100%,50%)`;
+    c.style.animationDuration = (Math.random()*3+2)+"s";
+    document.body.appendChild(c);
+  }
+}
+</script>
+
+</body>
+</html>
