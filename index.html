@@ -3,61 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nour Says</title>
+<title>NOUR</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; }
   body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    text-align: center;
-    background: linear-gradient(135deg, #141e30, #243b55);
-    color: white;
-    min-height: 100vh;
-    overflow-x: hidden;
+    font-family: -apple-system, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
+    background: linear-gradient(180deg,#061631 0%,#0b2b5e 100%);
+    color:#eaf4ff;
+    min-height:100%;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding:28px 18px 44px;
+    overflow-x:hidden;
+    -webkit-tap-highlight-color: transparent;
   }
-  .container { padding-top: 60px; }
-  img { width: 220px; max-width: 80%; animation: float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
-  h1 { font-size: 34px; margin: 22px 0; }
-  button {
-    padding: 16px 42px; font-size: 18px; font-weight: bold;
-    border: none; border-radius: 30px;
-    background: linear-gradient(45deg, #00c6ff, #0072ff);
-    color: white; cursor: pointer; transition: 0.3s;
+  .dots { position:fixed; inset:0; pointer-events:none; opacity:.35; z-index:0; }
+  .dots span {
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:#5cd0ff; box-shadow:0 0 10px #5cd0ff;
+    animation:tw 4s ease-in-out infinite;
   }
-  button:active { transform: scale(0.96); }
-  .hint { margin-top: 16px; font-size: 13px; color: #9cc0ee; }
-  .confetti { position: absolute; width: 10px; height: 10px; top: -20px; }
+  @keyframes tw { 0%,100%{opacity:.2;transform:scale(.7);} 50%{opacity:1;transform:scale(1.2);} }
+  .stage { position:relative; z-index:2; width:100%; max-width:420px; }
+  .card {
+    position:relative;
+    background:#ffffff;
+    border-radius:22px;
+    padding:20px 22px;
+    box-shadow:0 12px 40px rgba(20,90,180,.35);
+  }
+  .halo {
+    position:absolute; inset:-12px; border-radius:30px;
+    background:conic-gradient(from 0deg,#2ea6ff,#5cd0ff,#1b4fa0,#2ea6ff);
+    filter:blur(20px); opacity:.55; z-index:-1;
+    animation:spin 9s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .card img { display:block; width:100%; height:auto; border-radius:10px; }
+  .tag { margin-top:22px; color:#7fdcff; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .sub { margin-top:6px; color:#bcd7ff; font-size:14px; font-weight:600; }
+  .btn {
+    margin-top:28px;
+    display:inline-flex; align-items:center; gap:12px;
+    padding:18px 42px;
+    font-size:20px; font-weight:800;
+    color:#04122e;
+    background:linear-gradient(135deg,#7fdcff,#2ea6ff 60%,#1b73d6);
+    border:none; border-radius:50px;
+    box-shadow:0 8px 24px rgba(46,166,255,.5);
+    cursor:pointer;
+  }
+  .btn:active { transform:translateY(2px); }
+  .btn:disabled { opacity:.6; }
+  .hint { margin-top:16px; font-size:13px; color:#9cc0ee; line-height:1.6; }
+  #fx { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:99; }
+  .p { position:absolute; width:10px; height:14px; }
 </style>
 </head>
 <body>
-  <div class="container">
-    <img src="nour-logo.png" alt="NOUR">
-    <h1>Nour Says</h1>
-    <button onclick="start()">▶ Start Experience</button>
-    <div class="hint">اضغط الزر عشان نور يرحّب بلجنة المناقشة</div>
+  <div class="dots" id="dots"></div>
+  <div class="stage">
+    <div class="card">
+      <div class="halo"></div>
+      <img src="nour-logo.png" alt="NOUR">
+    </div>
+    <div class="tag">Networked Operational User-assistive Robot</div>
+    <div class="sub">مشروع التخرج — Graduation Project</div>
+    <button class="btn" id="b">🔊 شغّل صوت نور</button>
+    <div class="hint" id="h">اضغط الزر عشان نور يرحّب بلجنة المناقشة</div>
   </div>
+  <div id="fx"></div>
 <script>
-function start() {
-  var en = new SpeechSynthesisUtterance("Welcome to the graduation discussion. This is Nour.");
-  en.lang = "en-US";
-  var ar = new SpeechSynthesisUtterance("أهلاً بكم في مناقشة مشروع التخرج. أنا نور.");
-  ar.lang = "ar-EG";
-  en.onend = function(){ speechSynthesis.speak(ar); };
-  speechSynthesis.cancel();
-  speechSynthesis.speak(en);
-  for (var i = 0; i < 60; i++) {
-    var c = document.createElement("div");
-    c.className = "confetti";
-    c.style.left = Math.random() * window.innerWidth + "px";
-    c.style.background = "hsl(" + (Math.random()*360) + ",100%,55%)";
-    c.style.animation = "fall " + (Math.random()*3+2) + "s linear forwards";
-    document.body.appendChild(c);
-    (function(el){ setTimeout(function(){ el.remove(); }, 5000); })(c);
+  var box=document.getElementById('dots');
+  for(var i=0;i<24;i++){var s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*4)+'s';box.appendChild(s);}
+
+  var EN="Welcome to the graduation discussion. This is Nour.";
+  var AR="أهلاً بكم في مناقشة مشروع التخرج. أنا نور.";
+  var b=document.getElementById('b'), h=document.getElementById('h'), fx=document.getElementById('fx');
+  var COLORS=['#2ea6ff','#5cd0ff','#7fdcff','#ffffff','#1b73d6'];
+  function burst(){
+    for(var i=0;i<70;i++){
+      var p=document.createElement('div');p.className='p';
+      p.style.background=COLORS[(Math.random()*COLORS.length)|0];
+      p.style.left='50%';p.style.top='40%';
+      var a=Math.random()*6.28,d=100+Math.random()*240,dx=Math.cos(a)*d,dy=Math.sin(a)*d-80;
+      fx.appendChild(p);
+      p.animate([{transform:'translate(-50%,-50%)',opacity:1},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) rotate('+(Math.random()*720-360)+'deg)',opacity:0}],{duration:1000+Math.random()*700,easing:'cubic-bezier(.15,.6,.3,1)',fill:'forwards'});
+      (function(el){setTimeout(function(){el.remove();},1800);})(p);
+    }
   }
-}
+  function pick(pref){var v=window.speechSynthesis?speechSynthesis.getVoices():[];for(var i=0;i<v.length;i++){if(v[i].lang&&v[i].lang.toLowerCase().indexOf(pref)===0)return v[i];}return null;}
+  function say(){
+    if(!('speechSynthesis' in window)){h.textContent='افتح الرابط في Chrome';return;}
+    speechSynthesis.cancel();
+    var en=new SpeechSynthesisUtterance(EN);en.lang='en-US';en.rate=0.95;var ev=pick('en');if(ev)en.voice=ev;
+    var ar=new SpeechSynthesisUtterance(AR);ar.lang='ar-EG';ar.rate=0.95;var av=pick('ar');if(av)ar.voice=av;
+    en.onend=function(){speechSynthesis.speak(ar);};
+    ar.onend=function(){b.disabled=false;b.textContent='🔊 شغّل صوت نور';};
+    ar.onerror=function(){b.disabled=false;b.textContent='🔊 شغّل صوت نور';};
+    b.disabled=true;b.textContent='🔊 ...';
+    speechSynthesis.speak(en);
+  }
+  b.addEventListener('click',function(){
+    burst();
+    if(window.speechSynthesis&&speechSynthesis.getVoices().length===0){
+      speechSynthesis.onvoiceschanged=function(){say();speechSynthesis.onvoiceschanged=null;};
+      speechSynthesis.getVoices();setTimeout(say,300);
+    } else { say(); }
+  });
 </script>
-<style>
-@keyframes fall { to { transform: translateY(105vh) rotate(360deg); opacity: 0; } }
-</style>
 </body>
 </html>
